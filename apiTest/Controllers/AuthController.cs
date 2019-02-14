@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using apiTest.Repo;
 
 namespace apiTest.Controllers
 {
@@ -16,7 +17,7 @@ namespace apiTest.Controllers
 
 
         [HttpPost("token")]
-        public IActionResult Token()
+        public async Task<IActionResult> TokenAsync()
         {
             //string tokenString = "test";
             var header = Request.Headers["Authorization"];
@@ -26,8 +27,8 @@ namespace apiTest.Controllers
                 var usernameAndPassenc = Encoding.UTF8.GetString(Convert.FromBase64String(credValue)); //admin:pass
                 var usernameAndPass = usernameAndPassenc.Split(":");
                 //check in DB username and pass exist
-
-                if (usernameAndPass[0] == "Admin" && usernameAndPass[1] == "pass")
+                AuthRepository ap = new AuthRepository();
+               if( (await ap.GetUserAsync(usernameAndPass[0], usernameAndPass[1]))!=null) 
                 {
                     var claimsdata = new[] { new Claim(ClaimTypes.Name, usernameAndPass[0]) };
                     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ahbasshfbsahjfbshajbfhjasbfashjbfsajhfvashjfashfbsahfbsahfksdjf"));
