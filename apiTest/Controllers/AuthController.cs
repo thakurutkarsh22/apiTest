@@ -11,6 +11,15 @@ using apiTest.Repo;
 
 namespace apiTest.Controllers
 {
+
+
+    public class jsonres
+    {
+        public string description;
+        public string status;
+        public string token;
+    }
+
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
@@ -27,7 +36,12 @@ namespace apiTest.Controllers
                 var usernameAndPassenc = Encoding.UTF8.GetString(Convert.FromBase64String(credValue)); //admin:pass
                 var usernameAndPass = usernameAndPassenc.Split(":");
                 //check in DB username and pass exist
-                AuthRepository ap = new AuthRepository();
+
+        AuthRepository ap = new AuthRepository();
+
+
+       
+
                if( (await ap.GetUserAsync(usernameAndPass[0], usernameAndPass[1]))!=null) 
                 {
                     var claimsdata = new[] { new Claim(ClaimTypes.Name, usernameAndPass[0]) };
@@ -41,7 +55,28 @@ namespace apiTest.Controllers
                          signingCredentials: signInCred
                         );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                    return Ok(tokenString);
+                    //return Ok(tokenString);
+                    
+
+
+       
+                     jsonres jsres = new jsonres();
+                    jsres.description = "Token is Succesfully Generated";
+                    jsres.status = "Success";
+                    jsres.token = tokenString+"";
+        
+        
+
+
+                    return new JsonResult(jsres);
+                }
+                else
+                {
+                    jsonres jsres = new jsonres();
+                    jsres.description = "Username or password is incorrect";
+                    jsres.status = "Failed";
+
+                    return BadRequest(jsres);
                 }
             }
             return BadRequest("wrong request");
